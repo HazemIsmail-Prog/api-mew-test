@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\UserResource;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -10,9 +11,14 @@ class UserController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        return User::all();
+        $users = User::query()
+            ->when($request['filters.search'], function ($q) use ($request) {
+                $q->where('name', 'like', '%' . $request['filters.search'] . '%');
+            })
+            ->paginate($request->per_page ?? 5);
+        return UserResource::collection($users);
     }
 
     /**
@@ -28,7 +34,7 @@ class UserController extends Controller
 
         $user = User::create($validated);
 
-        return $user;
+        return new UserResource($user);
     }
 
     /**
@@ -36,7 +42,7 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
-        return $user;
+        return new UserResource($user);
     }
 
     /**
@@ -61,7 +67,7 @@ class UserController extends Controller
 
         $user->save();
 
-        return $user;
+        return new UserResource($user);
     }
 
     /**

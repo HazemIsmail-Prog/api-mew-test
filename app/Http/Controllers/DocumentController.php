@@ -18,13 +18,27 @@ class DocumentController extends Controller
 
         $documents = Document::query()
             ->orderBy('is_completed')
-            ->orderBy('id','desc')
+            ->orderBy('id', 'desc')
             ->with('sender')
             ->with('receiver')
             ->with('contract')
             ->with('lastStep')
             ->when($request->filled('filters.search'), function (Builder $q) use ($request) {
-                $q->where('title', 'like', '%' . $request->input('filters.search') . '%');
+                $q->where(function (Builder $q) use ($request) {
+                    $q->whereAny(
+                        [
+                            'title',
+                            'content',
+                            'notes',
+                            'ref'
+                        ],
+                        'LIKE',
+                        "%" . $request->input('filters.search') . "%"
+                    );
+
+                    $q->orWhereRelation('steps', 'action', 'like', "%" . $request->input('filters.search') . "%");
+                });
+                // $q->where('title', 'like', '%' . $request->input('filters.search') . '%');
             })
             ->when($request->filled('filters.contract_id'), function (Builder $q) use ($request) {
                 $q->whereIn('contract_id', $request->input('filters.contract_id'));
@@ -109,7 +123,5 @@ class DocumentController extends Controller
         $document->is_completed = !$document->is_completed;
         $document->save();
         return response()->json(new DocumentResource($document), 200, [], JSON_UNESCAPED_UNICODE);
-
-
     }
 }

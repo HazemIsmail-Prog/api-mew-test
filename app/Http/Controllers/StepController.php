@@ -27,6 +27,7 @@ class StepController extends Controller
     {
         $validated = $request->validate([
             'action' => 'required',
+            'is_completed' => 'required',
         ]);
         $validated['user_id'] = auth()->id();
         $step = $document->steps()->create($validated);

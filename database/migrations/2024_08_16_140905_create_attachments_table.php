@@ -11,12 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('steps', function (Blueprint $table) {
+        Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('document_id')->constrained('documents');
-            $table->foreignId('user_id')->constrained('users');
-            $table->string('action');
-            $table->boolean('is_completed')->default(false); // ['completed','pending']
+            $table->foreignId('document_id')->constrained();
+            $table->string('description');
+            $table->string('file');
             $table->timestamps();
         });
     }
@@ -26,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('steps');
+        Schema::dropIfExists('attachments');
     }
 };

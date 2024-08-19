@@ -27,7 +27,6 @@ class DocumentResource extends JsonResource
             'receiver' => new StakeholderResource($this->whenLoaded('receiver')),
             'sender' => new StakeholderResource($this->whenLoaded('sender')),
             'lastStep' => new StepResource($this->whenLoaded('lastStep')),
-            'steps' => StepResource::collection($this->whenLoaded('steps')),
             'created_by' => $this->created_by,
             'is_completed' => $this->is_completed,
             'created_at' => $this->created_at,

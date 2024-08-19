@@ -38,7 +38,7 @@ class StepController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, Step $step)
+    public function update(Request $request, Document $document, Step $step)
     {
         $validated = $request->validate([
             'action' => 'required',
@@ -52,7 +52,7 @@ class StepController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(Step $step)
+    public function destroy(Document $document, Step $step)
     {
         $step->delete();
     }

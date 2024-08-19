@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\AttachmentController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ContractController;
 use App\Http\Controllers\DocumentController;
@@ -23,13 +24,22 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::apiResource('contracts', ContractController::class);
     Route::apiResource('stakeholders', StakeholderController::class);
     Route::apiResource('documents', DocumentController::class);
-    Route::put('documents/toggleIsCompleted/{document}',[ DocumentController::class,'toggleIsCompleted']);
-    Route::get('steps/{document}', [StepController::class,'index']);
-    Route::post('steps/{document}', [StepController::class,'store']);
-    Route::delete('steps/{step}', [StepController::class,'destroy']);
-    Route::put('steps/{step}', [StepController::class,'update']);
+    // Nested routes for steps
+    Route::prefix('documents/{document}')->group(function () {
+        Route::apiResource('steps', StepController::class);
+    });
+    // Nested routes for attachments
+    Route::prefix('documents/{document}')->group(function () {
+        Route::apiResource('attachments', AttachmentController::class);
+    });
+    Route::put('documents/toggleIsCompleted/{document}', [DocumentController::class, 'toggleIsCompleted']);
+    Route::post('documents/saveToS3/{document}', [DocumentController::class, 'saveToS3']);
+    // Route::get('steps/{document}', [StepController::class, 'index']);
+    // Route::post('steps/{document}', [StepController::class, 'store']);
+    // Route::delete('steps/{step}', [StepController::class, 'destroy']);
+    // Route::put('steps/{step}', [StepController::class, 'update']);
     Route::get('contractsWithNoParent', [ContractController::class, 'getContracts']);
-    
+
     Route::controller(ReusableListController::class)
         ->group(function () {
             Route::get('contractsWithNoParent', 'contractsWithNoParent');
@@ -37,4 +47,3 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('allStakeholders', 'allStakeholders');
         });
 });
-

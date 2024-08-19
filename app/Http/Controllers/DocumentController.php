@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Resources\AttachmentResource;
 use App\Http\Resources\DocumentResource;
+use App\Http\Resources\StepResource;
 use App\Models\Document;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
@@ -38,7 +40,6 @@ class DocumentController extends Controller
 
                     $q->orWhereRelation('steps', 'action', 'like', "%" . $request->input('filters.search') . "%");
                 });
-                // $q->where('title', 'like', '%' . $request->input('filters.search') . '%');
             })
             ->when($request->filled('filters.contract_id'), function (Builder $q) use ($request) {
                 $q->whereIn('contract_id', $request->input('filters.contract_id'));
@@ -79,11 +80,19 @@ class DocumentController extends Controller
      */
     public function show(Document $document)
     {
-        $document->load('sender');
-        $document->load('receiver');
-        $document->load('contract');
-        $document->load('lastStep');
-        return new DocumentResource($document);
+        // Eager load the relationships
+        $document->load([
+            'sender',
+            'receiver',
+            'contract',
+            'lastStep',
+        ]);
+
+        return [
+            'document' => new DocumentResource($document),
+            'steps' => StepResource::collection($document->steps),
+            'attachments' => AttachmentResource::collection($document->attachments),
+        ];
     }
 
     /**
@@ -102,10 +111,12 @@ class DocumentController extends Controller
             'created_by' => 'required',
         ]);
         $document->update($validated);
-        $document->load('sender');
-        $document->load('receiver');
-        $document->load('contract');
-        $document->load('lastStep');
+        $document->load([
+            'sender',
+            'receiver',
+            'contract',
+            'lastStep',
+        ]);
 
         return response()->json(new DocumentResource($document), 200, [], JSON_UNESCAPED_UNICODE);
     }

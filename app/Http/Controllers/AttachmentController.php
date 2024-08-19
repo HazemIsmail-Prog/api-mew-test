@@ -15,6 +15,7 @@ class AttachmentController extends Controller
     {
 
         $request->validate([
+            'description' => 'required|string|max:255',
             'file' => 'required|file|mimes:jpeg,png,pdf,doc,docx,zip,rar|max:2097152', // Adjust mime types and size as needed
         ]);
 

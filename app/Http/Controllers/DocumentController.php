@@ -50,6 +50,16 @@ class DocumentController extends Controller
             ->when($request->filled('filters.to_id'), function (Builder $q) use ($request) {
                 $q->whereIn('to_id', $request->input('filters.to_id'));
             })
+            ->when($request->filled('filters.status'), function (Builder $q) use ($request) {
+                switch ($request->input('filters.status')) {
+                    case 'completed':
+                        $q->where('is_completed',true);
+                        break;
+                    case 'pending':
+                        $q->where('is_completed',false);
+                        break;
+                }
+            })
             ->paginate($perPage);
 
         return DocumentResource::collection($documents);

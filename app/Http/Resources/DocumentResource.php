@@ -4,6 +4,7 @@ namespace App\Http\Resources;
 
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentResource extends JsonResource
 {
@@ -31,6 +32,8 @@ class DocumentResource extends JsonResource
             'is_completed' => $this->is_completed,
             'created_at' => $this->created_at,
             'updated_at' => $this->updated_at,
+            'can_delete' => Auth::id() == $this->created_by,
+            'can_complete' => true,
         ];
     }
 }

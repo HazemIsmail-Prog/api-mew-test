@@ -8,6 +8,7 @@ use App\Http\Resources\StepResource;
 use App\Models\Document;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class DocumentController extends Controller
 {
@@ -53,16 +54,16 @@ class DocumentController extends Controller
             ->when($request->filled('filters.status'), function (Builder $q) use ($request) {
                 switch ($request->input('filters.status')) {
                     case 'completed':
-                        $q->where('is_completed',true);
+                        $q->where('is_completed', true);
                         break;
                     case 'pending':
-                        $q->where('is_completed',false);
+                        $q->where('is_completed', false);
                         break;
                 }
             })
             ->paginate($perPage);
 
-        return DocumentResource::collection($documents);
+        return DocumentResource::collection($documents)->additional(['meta' => ['can_create' => true]]);
     }
 
 
@@ -80,7 +81,7 @@ class DocumentController extends Controller
             'to_id' => 'required',
             'from_id' => 'required',
         ]);
-        $validated['created_by'] = auth()->id();
+        $validated['created_by'] = Auth::id();
         $document = Document::create($validated);
         return new DocumentResource($document);
     }
